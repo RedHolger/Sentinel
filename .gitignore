@@ -1,0 +1,57 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C / C++ build artifacts
+build/
+bin/
+lib/
+*.o
+*.a
+*.so
+*.dylib
+compile_commands.json
+.cache/
+
+# Virtual environments
+.venv/
+env/
+venv/
+.release/venv/
+.release/wheels/
+
+# Distribution / packaging
+dist/
+*.egg-info/
+*.whl
+
+# Testing & profiling
+.pytest_cache/
+.coverage
+htmlcov/
+*.prof
+*.log
+
+# Environment & secrets
+.env
+.env.*
+*.pem
+*.key
+
+# IDE and OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Hardware & checkpoint weights (gitignored; download via explicit scripts)
+models/
+weights/
+data/raw/
+
+# Node & Repomix outputs
+node_modules/
+repomix-output.*
+repomix-*-output.*

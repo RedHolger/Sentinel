@@ -1,0 +1,21 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "adi-common"
+version = "0.1.0"
+description = "Canonical versioned schemas, data contracts, and semantic validators for ADI Edge Portfolio"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "jsonschema>=4.20.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.0.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/adi_common"]

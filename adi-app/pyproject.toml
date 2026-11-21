@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "adi-app"
+version = "0.1.0"
+description = "Application layer, deterministic verifier, and offline CLI assistant"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "adi-common>=0.1.0",
+    "adi-runtime>=0.1.0",
+    "scipy>=1.15.0,<1.16.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.0.0",
+]
+
+[project.scripts]
+adi-portfolio = "adi_app.portfolio:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/adi_app"]

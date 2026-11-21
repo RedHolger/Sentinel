@@ -1,0 +1,400 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://analog.com/schemas/adi-edge/exploratory_source_inspection.schema.v1.json",
+  "title": "ExploratorySourceInspectionV1",
+  "description": "V1 contract for reporting structural inspection of uncalibrated or exploratory vibration data sources.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "inspection_id",
+    "inspected_at",
+    "source_identity",
+    "container_facts",
+    "source_documentation",
+    "metadata_status_ledger",
+    "local_annotations",
+    "inspection_findings"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["1.0.0"],
+      "description": "Contract version. Must be '1.0.0'."
+    },
+    "inspection_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_-]+$",
+      "description": "Validated identifier for this inspection event."
+    },
+    "inspected_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 UTC timestamp of inspection execution."
+    },
+    "source_identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "source_locator",
+        "source_filename",
+        "raw_byte_sha256",
+        "raw_byte_size"
+      ],
+      "properties": {
+        "source_id": { "type": "string", "minLength": 1 },
+        "source_locator": { "type": "string", "format": "uri" },
+        "source_filename": { "type": "string", "minLength": 1 },
+        "raw_byte_sha256": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$",
+          "description": "Cryptographic SHA-256 of raw source bytes before parsing. Exact 64 hex characters."
+        },
+        "raw_byte_size": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Exact byte length of raw source file on disk."
+        }
+      }
+    },
+    "container_facts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "container_format",
+        "available_variables",
+        "target_variable",
+        "numeric_dtype",
+        "numeric_shape",
+        "sample_count",
+        "nonfinite_sample_count",
+        "observed_raw_extrema"
+      ],
+      "properties": {
+        "container_format": {
+          "type": "string",
+          "enum": ["MATLAB_V4", "MATLAB_V5", "MATLAB_V7_3_HDF5", "CSV_ASCII", "UNRECOGNIZED"]
+        },
+        "available_variables": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string" }
+        },
+        "target_variable": {
+          "type": ["string", "null"]
+        },
+        "numeric_dtype": {
+          "type": ["string", "null"],
+          "enum": ["float32", "float64", null]
+        },
+        "numeric_shape": {
+          "type": ["array", "null"],
+          "minItems": 2,
+          "maxItems": 2,
+          "items": { "type": "integer", "minimum": 1 }
+        },
+        "sample_count": {
+          "type": ["integer", "null"],
+          "minimum": 1,
+          "maximum": 10000000
+        },
+        "nonfinite_sample_count": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "maximum": 10000000
+        },
+        "observed_raw_extrema": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "required": ["min", "max"],
+          "properties": {
+            "min": { "type": "number" },
+            "max": { "type": "number" }
+          }
+        }
+      }
+    },
+    "source_documentation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sensor_physical_location",
+        "test_rig_description",
+        "nominal_motor_load_hp",
+        "nominal_motor_speed_rpm",
+        "recording_condition_label"
+      ],
+      "properties": {
+        "sensor_physical_location": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["value", "evidence_reference"],
+          "properties": {
+            "value": { "type": ["string", "null"] },
+            "evidence_reference": { "type": "string" }
+          }
+        },
+        "test_rig_description": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["value", "evidence_reference"],
+          "properties": {
+            "value": { "type": ["string", "null"] },
+            "evidence_reference": { "type": "string" }
+          }
+        },
+        "nominal_motor_load_hp": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["value", "evidence_reference"],
+          "properties": {
+            "value": { "type": ["number", "null"] },
+            "evidence_reference": { "type": "string" }
+          }
+        },
+        "nominal_motor_speed_rpm": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["value", "evidence_reference"],
+          "properties": {
+            "value": { "type": ["number", "null"] },
+            "evidence_reference": { "type": "string" }
+          }
+        },
+        "recording_condition_label": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["value", "evidence_reference", "scope"],
+          "properties": {
+            "value": { "type": "string" },
+            "evidence_reference": { "type": "string" },
+            "scope": {
+              "type": "string",
+              "enum": ["WHOLE_RECORDING_ONLY"]
+            }
+          }
+        }
+      }
+    },
+    "metadata_status_ledger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "physical_acceleration_unit",
+        "native_sampling_rate_hz",
+        "acquisition_full_scale_limit",
+        "physical_specimen_identity",
+        "legal_usage_grant"
+      ],
+      "properties": {
+        "physical_acceleration_unit": {
+          "oneOf": [
+            { "$ref": "#/$defs/metadata_ledger_unknown" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["status", "resolved_value", "evidence_reference", "evidence_gap_statement"],
+              "properties": {
+                "status": { "const": "DOCUMENTED_KNOWN" },
+                "resolved_value": { "type": "string", "enum": ["g", "m/s^2"] },
+                "evidence_reference": { "$ref": "#/$defs/evidence_reference_object" },
+                "evidence_gap_statement": { "type": "null" }
+              }
+            }
+          ]
+        },
+        "native_sampling_rate_hz": {
+          "oneOf": [
+            { "$ref": "#/$defs/metadata_ledger_unknown" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["status", "resolved_value", "evidence_reference", "evidence_gap_statement"],
+              "properties": {
+                "status": { "const": "DOCUMENTED_KNOWN" },
+                "resolved_value": { "type": "number", "exclusiveMinimum": 0 },
+                "evidence_reference": { "$ref": "#/$defs/evidence_reference_object" },
+                "evidence_gap_statement": { "type": "null" }
+              }
+            }
+          ]
+        },
+        "acquisition_full_scale_limit": {
+          "oneOf": [
+            { "$ref": "#/$defs/metadata_ledger_unknown" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["status", "resolved_value", "evidence_reference", "evidence_gap_statement"],
+              "properties": {
+                "status": { "const": "DOCUMENTED_KNOWN" },
+                "resolved_value": { "type": "number", "exclusiveMinimum": 0 },
+                "evidence_reference": { "$ref": "#/$defs/evidence_reference_object" },
+                "evidence_gap_statement": { "type": "null" }
+              }
+            }
+          ]
+        },
+        "physical_specimen_identity": {
+          "oneOf": [
+            { "$ref": "#/$defs/metadata_ledger_unknown" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["status", "resolved_value", "evidence_reference", "evidence_gap_statement"],
+              "properties": {
+                "status": { "const": "DOCUMENTED_KNOWN" },
+                "resolved_value": { "type": "string", "minLength": 1 },
+                "evidence_reference": { "$ref": "#/$defs/evidence_reference_object" },
+                "evidence_gap_statement": { "type": "null" }
+              }
+            }
+          ]
+        },
+        "legal_usage_grant": {
+          "oneOf": [
+            { "$ref": "#/$defs/metadata_ledger_unknown" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["status", "resolved_value", "evidence_reference", "evidence_gap_statement"],
+              "properties": {
+                "status": { "const": "DOCUMENTED_KNOWN" },
+                "resolved_value": { "type": "string", "minLength": 1 },
+                "evidence_reference": { "$ref": "#/$defs/evidence_reference_object" },
+                "evidence_gap_statement": { "type": "null" }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "local_annotations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "precautionary_specimen_group",
+        "candidate_partition_role",
+        "provenance_classification"
+      ],
+      "properties": {
+        "precautionary_specimen_group": { "type": "string", "minLength": 1 },
+        "candidate_partition_role": {
+          "type": "string",
+          "enum": ["development_calibration", "held_out_load_test", "unassigned"]
+        },
+        "provenance_classification": {
+          "type": "string",
+          "enum": ["recorded"]
+        }
+      }
+    },
+    "inspection_findings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "structural_status",
+        "measurement_readiness",
+        "detector_admission_eligible",
+        "diagnostic_notes"
+      ],
+      "properties": {
+        "structural_status": {
+          "type": "string",
+          "enum": [
+            "STRUCTURAL_SUCCESS",
+            "NONFINITE_VALUES_DETECTED",
+            "TARGET_VARIABLE_NOT_FOUND",
+            "MALFORMED_CONTAINER",
+            "UNSUPPORTED_STRUCTURE",
+            "RESOURCE_LIMIT_EXCEEDED",
+            "CORRUPTED_RAW_BYTES"
+          ]
+        },
+        "measurement_readiness": {
+          "type": "string",
+          "enum": [
+            "BLOCKED_UNKNOWN_METADATA",
+            "BLOCKED_NONFINITE_VALUES",
+            "BLOCKED_TARGET_NOT_FOUND",
+            "BLOCKED_UNSUPPORTED_FORMAT",
+            "BLOCKED_CORRUPTED_FILE",
+            "BLOCKED_RESOURCE_LIMIT"
+          ]
+        },
+        "detector_admission_eligible": {
+          "type": "boolean",
+          "enum": [false]
+        },
+        "diagnostic_notes": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "inspection_findings": {
+            "properties": {
+              "structural_status": { "enum": ["STRUCTURAL_SUCCESS", "NONFINITE_VALUES_DETECTED"] }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "container_facts": {
+            "properties": {
+              "container_format": { "const": "MATLAB_V5" },
+              "target_variable": { "type": "string", "minLength": 1 },
+              "numeric_dtype": { "type": "string", "enum": ["float32", "float64"] },
+              "numeric_shape": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "integer", "minimum": 1 } },
+              "sample_count": { "type": "integer", "minimum": 1, "maximum": 10000000 },
+              "nonfinite_sample_count": { "type": "integer", "minimum": 0, "maximum": 10000000 }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "container_facts": {
+            "properties": {
+              "numeric_dtype": { "type": "null" },
+              "numeric_shape": { "type": "null" },
+              "sample_count": { "type": "null" },
+              "nonfinite_sample_count": { "type": "null" },
+              "observed_raw_extrema": { "type": "null" }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "metadata_ledger_unknown": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "resolved_value", "evidence_reference", "evidence_gap_statement"],
+      "properties": {
+        "status": { "enum": ["UNKNOWN_UNSTATED", "UNKNOWN_UNPROVEN"] },
+        "resolved_value": { "type": "null" },
+        "evidence_reference": { "type": "null" },
+        "evidence_gap_statement": { "type": "string", "minLength": 1 }
+      }
+    },
+    "evidence_reference_object": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_document", "passage_or_table", "access_provenance"],
+      "properties": {
+        "source_document": { "type": "string", "minLength": 1 },
+        "passage_or_table": { "type": "string", "minLength": 1 },
+        "access_provenance": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

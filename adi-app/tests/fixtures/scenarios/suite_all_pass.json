@@ -1,0 +1,165 @@
+{
+  "schema_version": "1.0.0",
+  "suite_id": "suite_synthetic_regression_01",
+  "evaluation_scope": "synthetic_behavioral_regression",
+  "description": "Comprehensive synthetic behavioral regression suite covering normal, anomaly, equality, saturation, envelope mismatch, and short recording conditions.",
+  "cases": [
+    {
+      "case_id": "case_01_normal_window",
+      "description": "Single-channel normal window strictly below threshold (RMS=1.0 < 2.0)",
+      "csv_path": "normal_5samples.csv",
+      "metadata_path": "metadata_1000hz.json",
+      "config_path": "config_1000hz_fs10_th2.json",
+      "expected_csv_sha256": "f136415649a2d511037c028ca5eb57bde4cc9257c94e2c87247dcab92b140e6c",
+      "expected_result": {
+        "scope": "window",
+        "windows": [
+          {
+            "window_index": 0,
+            "start_sample": 0,
+            "end_sample": 5,
+            "outcome": "NORMAL",
+            "quality_status": "PASS",
+            "reason_codes": []
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "case_02_anomaly_window",
+      "description": "Single-channel anomaly window strictly above threshold (RMS=3.0 >= 2.0)",
+      "csv_path": "anomaly_5samples.csv",
+      "metadata_path": "metadata_1000hz.json",
+      "config_path": "config_1000hz_fs10_th2.json",
+      "expected_csv_sha256": "9c8049b9b1cdef70cd87c1db8b6623ba8584de307a081f604e48e4a6a61a101f",
+      "expected_result": {
+        "scope": "window",
+        "windows": [
+          {
+            "window_index": 0,
+            "start_sample": 0,
+            "end_sample": 5,
+            "outcome": "ANOMALY",
+            "quality_status": "PASS",
+            "reason_codes": []
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "case_03_threshold_equality",
+      "description": "Single-channel window with RMS exactly equal to threshold (RMS=2.0 == 2.0 -> ANOMALY)",
+      "csv_path": "equality_5samples.csv",
+      "metadata_path": "metadata_1000hz.json",
+      "config_path": "config_1000hz_fs10_th2.json",
+      "expected_csv_sha256": "f49f44d30f336d3e85f21d1cf342d00bc500e744acec86e099597ff9b7189618",
+      "expected_result": {
+        "scope": "window",
+        "windows": [
+          {
+            "window_index": 0,
+            "start_sample": 0,
+            "end_sample": 5,
+            "outcome": "ANOMALY",
+            "quality_status": "PASS",
+            "reason_codes": []
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "case_04_sensor_saturation",
+      "description": "Single-channel window containing sample 12.0 >= full_scale 10.0 -> INSUFFICIENT_EVIDENCE",
+      "csv_path": "saturation_5samples.csv",
+      "metadata_path": "metadata_1000hz.json",
+      "config_path": "config_1000hz_fs10_th2.json",
+      "expected_csv_sha256": "40e5c908077c47eb17d3c27a710f0fb370715e6d7a69c929d59b5c97767f6087",
+      "expected_result": {
+        "scope": "window",
+        "windows": [
+          {
+            "window_index": 0,
+            "start_sample": 0,
+            "end_sample": 5,
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "quality_status": "INDETERMINATE",
+            "reason_codes": [
+              "SENSOR_SATURATION_POSSIBLE"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "case_05_mixed_windows",
+      "description": "Multi-window recording containing NORMAL (w0), saturated abstention (w1), and ANOMALY (w2)",
+      "csv_path": "mixed_15samples.csv",
+      "metadata_path": "metadata_1000hz.json",
+      "config_path": "config_1000hz_fs10_th2.json",
+      "expected_csv_sha256": "94f14b4ebb6693d09f8526788b13b71cbe06a53bb3be8e7bef39c0cf14c71b1f",
+      "expected_result": {
+        "scope": "window",
+        "windows": [
+          {
+            "window_index": 0,
+            "start_sample": 0,
+            "end_sample": 5,
+            "outcome": "NORMAL",
+            "quality_status": "PASS",
+            "reason_codes": []
+          },
+          {
+            "window_index": 1,
+            "start_sample": 5,
+            "end_sample": 10,
+            "outcome": "INSUFFICIENT_EVIDENCE",
+            "quality_status": "INDETERMINATE",
+            "reason_codes": [
+              "SENSOR_SATURATION_POSSIBLE"
+            ]
+          },
+          {
+            "window_index": 2,
+            "start_sample": 10,
+            "end_sample": 15,
+            "outcome": "ANOMALY",
+            "quality_status": "PASS",
+            "reason_codes": []
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "case_06_sample_rate_mismatch",
+      "description": "Sample rate mismatch (500 Hz vs 1000 Hz) producing recording-level abstention",
+      "csv_path": "normal_5samples.csv",
+      "metadata_path": "metadata_500hz.json",
+      "config_path": "config_1000hz_fs10_th2.json",
+      "expected_csv_sha256": "f136415649a2d511037c028ca5eb57bde4cc9257c94e2c87247dcab92b140e6c",
+      "expected_result": {
+        "scope": "recording_envelope",
+        "outcome": "INSUFFICIENT_EVIDENCE",
+        "quality_status": "FAIL",
+        "reason_codes": [
+          "SAMPLE_RATE_MISMATCH"
+        ]
+      }
+    },
+    {
+      "case_id": "case_07_insufficient_recording_length",
+      "description": "Recording samples (3) strictly less than window_size (5) producing recording-level abstention",
+      "csv_path": "short_3samples.csv",
+      "metadata_path": "metadata_1000hz.json",
+      "config_path": "config_1000hz_fs10_th2.json",
+      "expected_csv_sha256": "7b0f0cb755c5dd2406330df7ed3d7d53b58efcc82db3e025bd62171372668fbe",
+      "expected_result": {
+        "scope": "recording_envelope",
+        "outcome": "INSUFFICIENT_EVIDENCE",
+        "quality_status": "FAIL",
+        "reason_codes": [
+          "INSUFFICIENT_RECORDING_LENGTH"
+        ]
+      }
+    }
+  ]
+}

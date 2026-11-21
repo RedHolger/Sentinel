@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://analog.com/schemas/adi-edge/anomaly_decision.schema.v1.json",
+  "title": "AnomalyDecisionV1",
+  "description": "V1 data contract for detector anomaly decisions. score >= threshold implies ANOMALY; score < threshold implies NORMAL. INSUFFICIENT_EVIDENCE requires null score and threshold and explanatory reason codes without implying health or completed diagnosis.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "decision_id",
+    "recording_ref",
+    "detector_id",
+    "detector_version",
+    "outcome",
+    "execution_environment",
+    "quality_status",
+    "reason_codes",
+    "score",
+    "threshold"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["1.0.0"],
+      "description": "Contract schema version. Must be '1.0.0'."
+    },
+    "decision_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Nonempty unique identifier for this decision."
+    },
+    "recording_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Nonempty identifier referencing the analyzed recording."
+    },
+    "detector_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Nonempty identifier of the detector model or algorithm."
+    },
+    "detector_version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Nonempty version string of the detector."
+    },
+    "outcome": {
+      "type": "string",
+      "enum": ["NORMAL", "ANOMALY", "INSUFFICIENT_EVIDENCE"],
+      "description": "High-level classification outcome."
+    },
+    "execution_environment": {
+      "type": "string",
+      "enum": ["HOST_CPU"],
+      "description": "Execution environment target. Restricted to 'HOST_CPU' because embedded silicon acceleration has not been measured."
+    },
+    "quality_status": {
+      "type": "string",
+      "enum": ["PASS", "FAIL", "INDETERMINATE"],
+      "description": "Quality assessment of input data and processing. NORMAL and ANOMALY require 'PASS'."
+    },
+    "reason_codes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "List of diagnostic reason codes. Mandatory when outcome is INSUFFICIENT_EVIDENCE."
+    },
+    "score": {
+      "type": ["number", "null"],
+      "description": "Finite numerical anomaly score, or null if outcome is INSUFFICIENT_EVIDENCE."
+    },
+    "threshold": {
+      "type": ["number", "null"],
+      "description": "Finite numerical decision threshold, or null if outcome is INSUFFICIENT_EVIDENCE."
+    }
+  }
+}

@@ -1,0 +1,189 @@
+{
+  "schema_version": "1.0.0",
+  "manifest_id": "readiness_manifest_cwru_pilot_repair_03",
+  "generated_at": "2026-11-16T12:45:00Z",
+  "dataset_identity": {
+    "dataset_name": "Case Western Reserve University (CWRU) Bearing Data Center",
+    "institutional_host": "Case School of Engineering, Case Western Reserve University",
+    "primary_url": "https://engineering.case.edu/bearingdatacenter",
+    "access_date": "2026-11-16",
+    "access_method": "Direct full-page HTML inspection of official subpages (apparatus-and-procedures, download-data-file, normal-baseline-data, 12k-drive-end-bearing-fault-data)"
+  },
+  "licensing_status": {
+    "category": "UNKNOWN_NO_EXPLICIT_GRANT",
+    "copyright_notice": "© 2024 Case Western Reserve University",
+    "license_grant": "UNSTATED",
+    "terms_summary": "The official CWRU pages publish direct download links under university copyright, but provide no formal open license text, terms-of-use agreement, or explicit redistribution grant. Public web download availability does not constitute an affirmative license grant.",
+    "local_research_permitted": "UNKNOWN_UNSTATED",
+    "fixture_redistribution_permitted": "UNKNOWN_UNSTATED",
+    "legal_conclusion_disclaimer": "This document records stated terms factually and does not provide legal advice or a binding legal conclusion."
+  },
+  "candidate_files": [
+    {
+      "file_identifier": "97.mat",
+      "partition_role": "descriptive_load_holdout_candidate",
+      "condition": "normal_baseline",
+      "fault_type": "none",
+      "fault_diameter_mils": 0.0,
+      "motor_load_hp": 0,
+      "nominal_speed_rpm": 1797,
+      "precautionary_specimen_group": "precautionary_group_cwru_normal",
+      "physical_specimen_identity": "UNKNOWN_UNPROVEN_IN_PRIMARY_SOURCES",
+      "channels_available": ["DE", "FE"],
+      "sample_rate_hz": null,
+      "channel_sample_rates_status": "UNKNOWN_UNSTATED_IN_PRIMARY_SOURCES",
+      "physical_unit": "UNKNOWN_UNSTATED",
+      "sensor_full_scale": "UNKNOWN_UNSTATED",
+      "source_url": "https://engineering.case.edu/sites/default/files/97.mat",
+      "source_url_status": "CANDIDATE_URL_EXPOSED_ON_INDEX_UNVERIFIED_DOWNLOAD",
+      "approximate_size_bytes": "UNKNOWN_PENDING_DOWNLOAD",
+      "source_sha256": "UNVERIFIED_PENDING_DOWNLOAD",
+      "download_status": "PENDING_DOWNLOAD"
+    },
+    {
+      "file_identifier": "98.mat",
+      "partition_role": "descriptive_development_calibration_candidate",
+      "condition": "normal_baseline",
+      "fault_type": "none",
+      "fault_diameter_mils": 0.0,
+      "motor_load_hp": 1,
+      "nominal_speed_rpm": 1772,
+      "precautionary_specimen_group": "precautionary_group_cwru_normal",
+      "physical_specimen_identity": "UNKNOWN_UNPROVEN_IN_PRIMARY_SOURCES",
+      "channels_available": ["DE", "FE"],
+      "sample_rate_hz": null,
+      "channel_sample_rates_status": "UNKNOWN_UNSTATED_IN_PRIMARY_SOURCES",
+      "physical_unit": "UNKNOWN_UNSTATED",
+      "sensor_full_scale": "UNKNOWN_UNSTATED",
+      "source_url": "https://engineering.case.edu/sites/default/files/98.mat",
+      "source_url_status": "CANDIDATE_URL_EXPOSED_ON_INDEX_UNVERIFIED_DOWNLOAD",
+      "approximate_size_bytes": "UNKNOWN_PENDING_DOWNLOAD",
+      "source_sha256": "UNVERIFIED_PENDING_DOWNLOAD",
+      "download_status": "PENDING_DOWNLOAD"
+    },
+    {
+      "file_identifier": "105.mat",
+      "partition_role": "descriptive_load_holdout_candidate",
+      "condition": "bearing_fault",
+      "fault_type": "inner_race",
+      "fault_diameter_mils": 7.0,
+      "motor_load_hp": 0,
+      "nominal_speed_rpm": 1797,
+      "precautionary_specimen_group": "precautionary_group_cwru_ir007",
+      "physical_specimen_identity": "UNKNOWN_UNPROVEN_IN_PRIMARY_SOURCES",
+      "channels_available": ["DE", "FE", "BA"],
+      "sample_rate_hz": null,
+      "channel_sample_rates_status": "UNKNOWN_UNSTATED_FOR_INDIVIDUAL_CHANNELS",
+      "physical_unit": "UNKNOWN_UNSTATED",
+      "sensor_full_scale": "UNKNOWN_UNSTATED",
+      "source_url": "https://engineering.case.edu/sites/default/files/105.mat",
+      "source_url_status": "CANDIDATE_URL_EXPOSED_ON_INDEX_UNVERIFIED_DOWNLOAD",
+      "approximate_size_bytes": "UNKNOWN_PENDING_DOWNLOAD",
+      "source_sha256": "UNVERIFIED_PENDING_DOWNLOAD",
+      "download_status": "PENDING_DOWNLOAD"
+    },
+    {
+      "file_identifier": "106.mat",
+      "partition_role": "descriptive_development_calibration_candidate",
+      "condition": "bearing_fault",
+      "fault_type": "inner_race",
+      "fault_diameter_mils": 7.0,
+      "motor_load_hp": 1,
+      "nominal_speed_rpm": 1772,
+      "precautionary_specimen_group": "precautionary_group_cwru_ir007",
+      "physical_specimen_identity": "UNKNOWN_UNPROVEN_IN_PRIMARY_SOURCES",
+      "channels_available": ["DE", "FE", "BA"],
+      "sample_rate_hz": null,
+      "channel_sample_rates_status": "UNKNOWN_UNSTATED_FOR_INDIVIDUAL_CHANNELS",
+      "physical_unit": "UNKNOWN_UNSTATED",
+      "sensor_full_scale": "UNKNOWN_UNSTATED",
+      "source_url": "https://engineering.case.edu/sites/default/files/106.mat",
+      "source_url_status": "CANDIDATE_URL_EXPOSED_ON_INDEX_UNVERIFIED_DOWNLOAD",
+      "approximate_size_bytes": "UNKNOWN_PENDING_DOWNLOAD",
+      "source_sha256": "UNVERIFIED_PENDING_DOWNLOAD",
+      "download_status": "PENDING_DOWNLOAD"
+    }
+  ],
+  "split_group_policy": {
+    "grouping_nature": "PRECAUTIONARY_GROUPING",
+    "machine_independence_status": "UNAVAILABLE_SINGLE_TEST_RIG",
+    "bearing_independence_status": "BLOCKED_UNPROVEN_SPECIMEN_IDENTITY",
+    "precautionary_groups": {
+      "precautionary_group_cwru_normal": ["97.mat", "98.mat"],
+      "precautionary_group_cwru_ir007": ["105.mat", "106.mat"]
+    },
+    "protocol_nature": "DESCRIPTIVE_SAME_RIG_LOAD_HOLDOUT",
+    "limitation_statement": "Physical specimen identity across load runs is not established by primary documentation. Precautionary grouping keeps 97/98 and 105/106 together in candidate partitions. Any evaluation is strictly descriptive of same-rig load variation; claims of independent bearing or machine generalization are blocked.",
+    "window_split_timing": "BEFORE_WINDOWING",
+    "partition_assignment": {
+      "development_calibration": ["98.mat", "106.mat"],
+      "held_out_test": ["97.mat", "105.mat"]
+    },
+    "duplicate_and_overlap_detection_rules": [
+      {
+        "layer": "layer_1_sample_content_hash",
+        "method": "sha256_sample_content_sequence",
+        "description": "Deterministic SHA-256 computed strictly across IEEE 754 binary64 float bytes of the raw sample array, independent of file names, containers, or variable naming."
+      },
+      {
+        "layer": "layer_2_temporal_subsequence_overlap",
+        "method": "prefix_suffix_and_block_hashes",
+        "description": "Block-level sample hashing to detect temporal offsets, truncations, or sub-recording overlaps."
+      },
+      {
+        "layer": "layer_3_correlation_heuristic_and_grouping",
+        "method": "cross_correlation_threshold_heuristic",
+        "threshold": 0.95,
+        "description": "Normalized cross-correlation heuristic. Any pair exceeding 0.95 without documented physical distinction is treated as an unresolved suspected duplicate and locked into the same partition."
+      }
+    ]
+  },
+  "blocked_analysis_gates": [
+    {
+      "gate_id": "GATE_PHYSICAL_ACCELERATION_UNIT",
+      "target_field": "VibrationRecordingV1.acceleration_unit",
+      "status": "BLOCKED",
+      "documented_facts": "CWRU primary documentation omits accelerometer transducer sensitivity (mV/g), sensor gain settings, and physical output units. Stored values in distributed MAT arrays cannot be assumed to be physical acceleration. File inspection alone cannot guarantee units without explicit documentation; never infer units from signal amplitude or observed maxima.",
+      "prohibited_action": "Do NOT invent conversion factors. No supervisor policy can convert uncalibrated numbers into physical acceleration.",
+      "resolution_status": "REMAINS_BLOCKED"
+    },
+    {
+      "gate_id": "GATE_SENSOR_FULL_SCALE_RANGE",
+      "target_field": "threshold_configuration.full_scale",
+      "status": "BLOCKED",
+      "documented_facts": "CWRU primary documentation omits hardware DAQ voltage input ranges and sensor clipping thresholds. Nominal sensor specifications from third-party literature do not establish acquisition chain limits. File inspection alone cannot establish clipping bounds without explicit documentation; never infer full scale from observed maxima.",
+      "prohibited_action": "Do NOT infer full scale from observed sample maxima or assume nominal sensor limits.",
+      "resolution_status": "REMAINS_BLOCKED"
+    },
+    {
+      "gate_id": "GATE_CROSS_RECORD_SAMPLE_RATE_COMPATIBILITY",
+      "target_field": "threshold_configuration.expected_sample_rate_hz",
+      "status": "BLOCKED",
+      "documented_facts": "Native sampling rates per channel are unconfirmed in primary documentation for normal baseline and individual fault channels. Selecting Drive End alone does not resolve cross-record rate compatibility between normal and fault recordings. File inspection alone cannot guarantee rates without explicit metadata; never infer rates from sample counts alone.",
+      "prohibited_action": "Do NOT execute cross-record comparisons or assume uniform rates until rates are directly verified from explicit documentation. Defer window duration, common-rate choice, and resampling design; no executable recipe is ready.",
+      "resolution_status": "REMAINS_BLOCKED"
+    },
+    {
+      "gate_id": "GATE_BEARING_INDEPENDENCE",
+      "target_field": "evaluation_protocol.independence",
+      "status": "BLOCKED",
+      "documented_facts": "Primary documentation does not establish distinct physical bearing specimens across load tests. All data originated from a single test stand.",
+      "resolution_status": "REMAINS_BLOCKED"
+    }
+  ],
+  "pending_dependencies": [
+    {
+      "package": "scipy",
+      "purpose": "Parsing native MATLAB v4/v5 .mat files (scipy.io.loadmat)",
+      "installed_status": "NOT_INSTALLED",
+      "resolution_options": [
+        "Install scipy via uv in an authorized future stage",
+        "Implement a minimal zero-dependency pure-Python binary MAT v4/v5 reader"
+      ]
+    }
+  ],
+  "provenance_isolation_policy": {
+    "recording_provenance": "recorded",
+    "synthetic_evaluator_isolation": "Strictly preserved; adi-portfolio evaluate retains requirement provenance == 'synthetic' and must not be weakened to accept real data. Real dataset evaluation will be hosted in a separate future evaluation command."
+  }
+}

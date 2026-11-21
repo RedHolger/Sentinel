@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://analog.com/schemas/adi-edge/vibration_recording.schema.v1.json",
+  "title": "VibrationRecordingV1",
+  "description": "V1 data contract for sampled multi-axis vibration recordings. Matching source_sha256 establishes byte integrity of the raw source, not authenticity or correctness of the metadata.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "recording_id",
+    "machine_id",
+    "session_id",
+    "provenance",
+    "sample_rate_hz",
+    "acceleration_unit",
+    "channels",
+    "samples",
+    "source_id",
+    "source_sha256"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["1.0.0"],
+      "description": "Contract schema version. Must be '1.0.0'."
+    },
+    "recording_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Nonempty unique identifier for this recording."
+    },
+    "machine_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Nonempty identifier of the monitored machine or asset."
+    },
+    "session_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Nonempty identifier of the recording session."
+    },
+    "provenance": {
+      "type": "string",
+      "enum": ["synthetic", "recorded"],
+      "description": "Origin classification of the data: synthetic or recorded."
+    },
+    "sample_rate_hz": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "description": "Positive finite sampling rate in Hertz."
+    },
+    "acceleration_unit": {
+      "type": "string",
+      "enum": ["g", "m/s^2"],
+      "description": "Physical unit for acceleration values. Must be 'g' or 'm/s^2'."
+    },
+    "channels": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": ["x", "y", "z"]
+      },
+      "description": "Ordered list of unique channel names selected from 'x', 'y', 'z'."
+    },
+    "samples": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 3,
+        "items": {
+          "type": "number"
+        }
+      },
+      "description": "2D sample matrix with layout [sample, channel]. Row length must equal channels count."
+    },
+    "source_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Nonempty identifier of the raw source dataset, file, or generator."
+    },
+    "source_sha256": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[a-fA-F0-9]{64}$",
+      "description": "Hex-encoded SHA-256 digest of original source bytes establishing byte integrity."
+    }
+  }
+}

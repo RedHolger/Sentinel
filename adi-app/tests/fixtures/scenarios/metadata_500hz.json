@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0.0",
+  "recording_id": "rec_synth_500hz",
+  "machine_id": "mach_eval_01",
+  "session_id": "sess_eval_01",
+  "source_id": "synth_sensor_01",
+  "provenance": "synthetic",
+  "sample_rate_hz": 500.0,
+  "acceleration_unit": "g"
+}

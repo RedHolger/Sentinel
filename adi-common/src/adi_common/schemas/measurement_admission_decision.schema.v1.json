@@ -1,0 +1,203 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://analog.com/schemas/adi-edge/measurement_admission_decision.schema.v1.json",
+  "title": "MeasurementAdmissionDecisionV1",
+  "description": "Formal admission decision record determining whether candidate vibration recording bytes are admitted for physical measurement conversion and whether they qualify for supervised diagnostic benchmark evaluation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "decision_id",
+    "decided_at",
+    "evidence_record_id",
+    "target_source_sha256",
+    "target_variable_name",
+    "intended_use",
+    "evaluation_mode",
+    "measurement_admission_status",
+    "diagnostic_reason",
+    "precedence_gate_reached",
+    "operational_execution_authorized",
+    "diagnostic_evaluation_eligibility"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": [
+        "1.0.0"
+      ]
+    },
+    "decision_id": {
+      "type": "string",
+      "pattern": "^dec_adm_[a-z0-9_-]+$"
+    },
+    "decided_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "evidence_record_id": {
+      "type": "string",
+      "pattern": "^ev_rec_[a-z0-9_-]+$"
+    },
+    "target_source_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "target_variable_name": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_]{1,64}$"
+    },
+    "intended_use": {
+      "type": "string",
+      "enum": [
+        "ACADEMIC_RESEARCH_NONCOMMERCIAL",
+        "COMMERCIAL_R_AND_D",
+        "INTERNAL_TESTING",
+        "DATASET_REDISTRIBUTION",
+        "ARTIFACT_PUBLICATION"
+      ]
+    },
+    "evaluation_mode": {
+      "type": "string",
+      "enum": [
+        "FICTIONAL_TEST_ONLY"
+      ]
+    },
+    "measurement_admission_status": {
+      "type": "string",
+      "enum": [
+        "ADMITTED_FOR_MEASUREMENT",
+        "BLOCKED_UNSUPPORTED_FORMAT",
+        "BLOCKED_SIGNAL_INTEGRITY",
+        "BLOCKED_USAGE_RESTRICTIONS",
+        "BLOCKED_PROVENANCE",
+        "BLOCKED_UNKNOWN_METADATA",
+        "BLOCKED_CONFLICTING_EVIDENCE",
+        "BLOCKED_CALIBRATION"
+      ]
+    },
+    "diagnostic_reason": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "precedence_gate_reached": {
+      "type": "string",
+      "enum": [
+        "STRUCTURAL_FORMAT",
+        "SIGNAL_INTEGRITY",
+        "USAGE_PERMISSIONS",
+        "SOURCE_PROVENANCE",
+        "PHYSICAL_METADATA",
+        "CONFLICTING_EVIDENCE",
+        "CALIBRATION_VALIDITY",
+        "ADMISSION"
+      ]
+    },
+    "operational_execution_authorized": {
+      "type": "boolean",
+      "const": false
+    },
+    "diagnostic_evaluation_eligibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "eligible",
+        "status",
+        "specimen_distinctness_proven",
+        "ground_truth_fault_authority_verified",
+        "reasons"
+      ],
+      "properties": {
+        "eligible": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "ELIGIBLE_FOR_DIAGNOSTIC_EVALUATION",
+            "BLOCKED_AMBIGUOUS_SPECIMEN",
+            "BLOCKED_UNVERIFIED_FAULT_LABEL",
+            "BLOCKED_PARTITION_LEAKAGE",
+            "PRECONDITION_FAILED"
+          ]
+        },
+        "specimen_distinctness_proven": {
+          "type": "boolean"
+        },
+        "ground_truth_fault_authority_verified": {
+          "type": "boolean"
+        },
+        "precautionary_specimen_group": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "signal_integrity_summary": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "sample_count",
+        "nonfinite_sample_count",
+        "rail_sample_count",
+        "longest_contiguous_rail_run",
+        "verification_status"
+      ],
+      "properties": {
+        "sample_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "nonfinite_sample_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rail_sample_count": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "longest_contiguous_rail_run": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "clipping_ratio": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "verification_status": {
+          "type": "string",
+          "enum": [
+            "PASS",
+            "SUSTAINED_RAIL_SATURATION",
+            "EXCESSIVE_CLIPPING",
+            "NONFINITE_DETECTED",
+            "UNKNOWN_FULL_SCALE"
+          ]
+        }
+      }
+    }
+  }
+}

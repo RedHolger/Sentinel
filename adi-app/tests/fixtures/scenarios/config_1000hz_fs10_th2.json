@@ -1,0 +1,13 @@
+{
+  "config_id": "cfg_eval_01",
+  "config_version": "1.0.0",
+  "window_size": 5,
+  "hop_size": 5,
+  "expected_sample_rate_hz": 1000.0,
+  "expected_acceleration_unit": "g",
+  "expected_channels": [
+    "x"
+  ],
+  "full_scale": 10.0,
+  "threshold": 2.0
+}

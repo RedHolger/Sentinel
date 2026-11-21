@@ -1,0 +1,3040 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://analog.com/schemas/adi-edge/calibration_measurement_evidence.schema.v1.json",
+  "title": "CalibrationMeasurementEvidenceV1",
+  "description": "Evidence ledger documenting physical sensor parameters, acquisition chain characteristics, specimen identity, and legal provenance for real vibration measurements. (Draft 2020-12 compliant, with status mutual exclusion and evidence-backed boolean entries).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "evidence_record_id",
+    "target_source_sha256",
+    "target_variable_name",
+    "created_at",
+    "evidence_curator",
+    "sensor_identity",
+    "acquisition_signal_interpretation",
+    "experiment_specimen_identity",
+    "dataset_legal_provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": [
+        "1.0.0"
+      ]
+    },
+    "evidence_record_id": {
+      "type": "string",
+      "pattern": "^ev_rec_[a-z0-9_-]+$"
+    },
+    "target_source_sha256": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$",
+      "description": "Cryptographic SHA-256 of the raw container bytes to which this evidence applies."
+    },
+    "target_variable_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "description": "Specific variable/channel in the source container to which this calibration applies."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "evidence_curator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "organization",
+        "curator_name",
+        "role"
+      ],
+      "properties": {
+        "organization": {
+          "type": "string",
+          "minLength": 1
+        },
+        "curator_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "sensor_identity": {
+      "$ref": "#/$defs/sensor_identity_def"
+    },
+    "acquisition_signal_interpretation": {
+      "$ref": "#/$defs/acquisition_signal_interpretation_def"
+    },
+    "experiment_specimen_identity": {
+      "$ref": "#/$defs/experiment_specimen_identity_def"
+    },
+    "dataset_legal_provenance": {
+      "$ref": "#/$defs/dataset_legal_provenance_def"
+    }
+  },
+  "$defs": {
+    "evidence_reference_object": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "document_title",
+        "locator_uri",
+        "retrieval_date",
+        "passage_citation"
+      ],
+      "properties": {
+        "document_title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "locator_uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "retrieval_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "passage_citation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "extracted_text_verbatim": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "document_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-fA-F0-9]{64}$",
+          "description": "Cryptographic SHA-256 digest of the cited reference document."
+        }
+      }
+    },
+    "derivation_reference_object": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "derivation_method",
+        "formula_expression",
+        "input_parameters",
+        "primary_input_references"
+      ],
+      "properties": {
+        "derivation_method": {
+          "type": "string",
+          "minLength": 1
+        },
+        "formula_expression": {
+          "type": "string",
+          "minLength": 1
+        },
+        "input_parameters": {
+          "type": "object"
+        },
+        "primary_input_references": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/evidence_reference_object"
+          }
+        }
+      }
+    },
+    "positive_number_evidence_entry": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "evidence_level": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "evidence_reference": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "conflicting_references": {
+          "type": "array"
+        },
+        "resolved_value": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "confidence_assessment": {
+          "type": "string"
+        },
+        "evidence_gap_statement": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "applicability_justification": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "description": "DOCUMENTED_KNOWN",
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment"
+          ],
+          "properties": {
+            "status": {
+              "const": "DOCUMENTED_KNOWN"
+            },
+            "evidence_level": {
+              "type": "integer",
+              "enum": [
+                1,
+                2
+              ]
+            },
+            "evidence_reference": {
+              "$ref": "#/$defs/evidence_reference_object"
+            },
+            "resolved_value": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "confidence_assessment": {
+              "type": "string",
+              "enum": [
+                "VERIFIED_PRIMARY",
+                "CONSISTENT_SECONDARY"
+              ]
+            },
+            "evidence_gap_statement": {
+              "type": "null"
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        },
+        {
+          "description": "DERIVED_KNOWN",
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment"
+          ],
+          "properties": {
+            "status": {
+              "const": "DERIVED_KNOWN"
+            },
+            "evidence_level": {
+              "const": 3
+            },
+            "evidence_reference": {
+              "$ref": "#/$defs/derivation_reference_object"
+            },
+            "resolved_value": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "confidence_assessment": {
+              "const": "REPRODUCIBLE_DERIVATION"
+            },
+            "evidence_gap_statement": {
+              "type": "null"
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        },
+        {
+          "description": "UNKNOWN_UNSTATED",
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment",
+            "evidence_gap_statement"
+          ],
+          "properties": {
+            "status": {
+              "const": "UNKNOWN_UNSTATED"
+            },
+            "evidence_level": {
+              "type": "null"
+            },
+            "evidence_reference": {
+              "type": "null"
+            },
+            "resolved_value": {
+              "type": "null"
+            },
+            "confidence_assessment": {
+              "const": "UNVERIFIED"
+            },
+            "evidence_gap_statement": {
+              "type": "string",
+              "minLength": 1
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        },
+        {
+          "description": "CONFLICTING_EVIDENCE",
+          "required": [
+            "status",
+            "evidence_level",
+            "conflicting_references",
+            "resolved_value",
+            "confidence_assessment",
+            "evidence_gap_statement"
+          ],
+          "properties": {
+            "status": {
+              "const": "CONFLICTING_EVIDENCE"
+            },
+            "evidence_level": {
+              "type": "null"
+            },
+            "conflicting_references": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "$ref": "#/$defs/evidence_reference_object"
+              }
+            },
+            "evidence_reference": {
+              "type": "null"
+            },
+            "resolved_value": {
+              "type": "null"
+            },
+            "confidence_assessment": {
+              "const": "CONFLICTING"
+            },
+            "evidence_gap_statement": {
+              "type": "string",
+              "minLength": 1
+            },
+            "applicability_justification": false
+          }
+        },
+        {
+          "description": "NOT_APPLICABLE",
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment",
+            "applicability_justification"
+          ],
+          "properties": {
+            "status": {
+              "const": "NOT_APPLICABLE"
+            },
+            "evidence_level": {
+              "type": "null"
+            },
+            "evidence_reference": {
+              "type": "null"
+            },
+            "resolved_value": {
+              "type": "null"
+            },
+            "confidence_assessment": {
+              "const": "NOT_APPLICABLE"
+            },
+            "applicability_justification": {
+              "type": "string",
+              "minLength": 1
+            },
+            "conflicting_references": false,
+            "evidence_gap_statement": false
+          }
+        }
+      ]
+    },
+    "string_evidence_entry": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "evidence_level": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "evidence_reference": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "conflicting_references": {
+          "type": "array"
+        },
+        "resolved_value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence_assessment": {
+          "type": "string"
+        },
+        "evidence_gap_statement": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "applicability_justification": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "description": "DOCUMENTED_KNOWN",
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment"
+          ],
+          "properties": {
+            "status": {
+              "const": "DOCUMENTED_KNOWN"
+            },
+            "evidence_level": {
+              "type": "integer",
+              "enum": [
+                1,
+                2
+              ]
+            },
+            "evidence_reference": {
+              "$ref": "#/$defs/evidence_reference_object"
+            },
+            "resolved_value": {
+              "type": "string",
+              "minLength": 1
+            },
+            "confidence_assessment": {
+              "type": "string",
+              "enum": [
+                "VERIFIED_PRIMARY",
+                "CONSISTENT_SECONDARY"
+              ]
+            },
+            "evidence_gap_statement": {
+              "type": "null"
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        },
+        {
+          "description": "DERIVED_KNOWN",
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment"
+          ],
+          "properties": {
+            "status": {
+              "const": "DERIVED_KNOWN"
+            },
+            "evidence_level": {
+              "const": 3
+            },
+            "evidence_reference": {
+              "$ref": "#/$defs/derivation_reference_object"
+            },
+            "resolved_value": {
+              "type": "string",
+              "minLength": 1
+            },
+            "confidence_assessment": {
+              "const": "REPRODUCIBLE_DERIVATION"
+            },
+            "evidence_gap_statement": {
+              "type": "null"
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        },
+        {
+          "description": "UNKNOWN_UNSTATED",
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment",
+            "evidence_gap_statement"
+          ],
+          "properties": {
+            "status": {
+              "const": "UNKNOWN_UNSTATED"
+            },
+            "evidence_level": {
+              "type": "null"
+            },
+            "evidence_reference": {
+              "type": "null"
+            },
+            "resolved_value": {
+              "type": "null"
+            },
+            "confidence_assessment": {
+              "const": "UNVERIFIED"
+            },
+            "evidence_gap_statement": {
+              "type": "string",
+              "minLength": 1
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        },
+        {
+          "description": "CONFLICTING_EVIDENCE",
+          "required": [
+            "status",
+            "evidence_level",
+            "conflicting_references",
+            "resolved_value",
+            "confidence_assessment",
+            "evidence_gap_statement"
+          ],
+          "properties": {
+            "status": {
+              "const": "CONFLICTING_EVIDENCE"
+            },
+            "evidence_level": {
+              "type": "null"
+            },
+            "conflicting_references": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "$ref": "#/$defs/evidence_reference_object"
+              }
+            },
+            "evidence_reference": {
+              "type": "null"
+            },
+            "resolved_value": {
+              "type": "null"
+            },
+            "confidence_assessment": {
+              "const": "CONFLICTING"
+            },
+            "evidence_gap_statement": {
+              "type": "string",
+              "minLength": 1
+            },
+            "applicability_justification": false
+          }
+        },
+        {
+          "description": "NOT_APPLICABLE",
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment",
+            "applicability_justification"
+          ],
+          "properties": {
+            "status": {
+              "const": "NOT_APPLICABLE"
+            },
+            "evidence_level": {
+              "type": "null"
+            },
+            "evidence_reference": {
+              "type": "null"
+            },
+            "resolved_value": {
+              "type": "null"
+            },
+            "confidence_assessment": {
+              "const": "NOT_APPLICABLE"
+            },
+            "applicability_justification": {
+              "type": "string",
+              "minLength": 1
+            },
+            "conflicting_references": false,
+            "evidence_gap_statement": false
+          }
+        }
+      ]
+    },
+    "positive_int_evidence_entry": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "evidence_level": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "evidence_reference": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "conflicting_references": {
+          "type": "array"
+        },
+        "resolved_value": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "confidence_assessment": {
+          "type": "string"
+        },
+        "evidence_gap_statement": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "applicability_justification": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "description": "DOCUMENTED_KNOWN",
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment"
+          ],
+          "properties": {
+            "status": {
+              "const": "DOCUMENTED_KNOWN"
+            },
+            "evidence_level": {
+              "type": "integer",
+              "enum": [
+                1,
+                2
+              ]
+            },
+            "evidence_reference": {
+              "$ref": "#/$defs/evidence_reference_object"
+            },
+            "resolved_value": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "confidence_assessment": {
+              "type": "string",
+              "enum": [
+                "VERIFIED_PRIMARY",
+                "CONSISTENT_SECONDARY"
+              ]
+            },
+            "evidence_gap_statement": {
+              "type": "null"
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        },
+        {
+          "description": "UNKNOWN_UNSTATED",
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment",
+            "evidence_gap_statement"
+          ],
+          "properties": {
+            "status": {
+              "const": "UNKNOWN_UNSTATED"
+            },
+            "evidence_level": {
+              "type": "null"
+            },
+            "evidence_reference": {
+              "type": "null"
+            },
+            "resolved_value": {
+              "type": "null"
+            },
+            "confidence_assessment": {
+              "const": "UNVERIFIED"
+            },
+            "evidence_gap_statement": {
+              "type": "string",
+              "minLength": 1
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        },
+        {
+          "description": "CONFLICTING_EVIDENCE",
+          "required": [
+            "status",
+            "evidence_level",
+            "conflicting_references",
+            "resolved_value",
+            "confidence_assessment",
+            "evidence_gap_statement"
+          ],
+          "properties": {
+            "status": {
+              "const": "CONFLICTING_EVIDENCE"
+            },
+            "evidence_level": {
+              "type": "null"
+            },
+            "conflicting_references": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "$ref": "#/$defs/evidence_reference_object"
+              }
+            },
+            "evidence_reference": {
+              "type": "null"
+            },
+            "resolved_value": {
+              "type": "null"
+            },
+            "confidence_assessment": {
+              "const": "CONFLICTING"
+            },
+            "evidence_gap_statement": {
+              "type": "string",
+              "minLength": 1
+            },
+            "applicability_justification": false
+          }
+        },
+        {
+          "description": "NOT_APPLICABLE",
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment",
+            "applicability_justification"
+          ],
+          "properties": {
+            "status": {
+              "const": "NOT_APPLICABLE"
+            },
+            "evidence_level": {
+              "type": "null"
+            },
+            "evidence_reference": {
+              "type": "null"
+            },
+            "resolved_value": {
+              "type": "null"
+            },
+            "confidence_assessment": {
+              "const": "NOT_APPLICABLE"
+            },
+            "applicability_justification": {
+              "type": "string",
+              "minLength": 1
+            },
+            "conflicting_references": false,
+            "evidence_gap_statement": false
+          }
+        }
+      ]
+    },
+    "calibrated_acceleration_unit_evidence_entry": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "evidence_level": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "evidence_reference": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "conflicting_references": {
+          "type": "array"
+        },
+        "resolved_value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence_assessment": {
+          "type": "string"
+        },
+        "evidence_gap_statement": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "applicability_justification": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "description": "DOCUMENTED_KNOWN",
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment"
+          ],
+          "properties": {
+            "status": {
+              "const": "DOCUMENTED_KNOWN"
+            },
+            "evidence_level": {
+              "type": "integer",
+              "enum": [
+                1,
+                2
+              ]
+            },
+            "evidence_reference": {
+              "$ref": "#/$defs/evidence_reference_object"
+            },
+            "resolved_value": {
+              "type": "string",
+              "enum": [
+                "g",
+                "m/s^2"
+              ]
+            },
+            "confidence_assessment": {
+              "type": "string",
+              "enum": [
+                "VERIFIED_PRIMARY",
+                "CONSISTENT_SECONDARY"
+              ]
+            },
+            "evidence_gap_statement": {
+              "type": "null"
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        },
+        {
+          "description": "DERIVED_KNOWN",
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment"
+          ],
+          "properties": {
+            "status": {
+              "const": "DERIVED_KNOWN"
+            },
+            "evidence_level": {
+              "const": 3
+            },
+            "evidence_reference": {
+              "$ref": "#/$defs/derivation_reference_object"
+            },
+            "resolved_value": {
+              "type": "string",
+              "enum": [
+                "g",
+                "m/s^2"
+              ]
+            },
+            "confidence_assessment": {
+              "const": "REPRODUCIBLE_DERIVATION"
+            },
+            "evidence_gap_statement": {
+              "type": "null"
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        },
+        {
+          "description": "UNKNOWN_UNSTATED",
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment",
+            "evidence_gap_statement"
+          ],
+          "properties": {
+            "status": {
+              "const": "UNKNOWN_UNSTATED"
+            },
+            "evidence_level": {
+              "type": "null"
+            },
+            "evidence_reference": {
+              "type": "null"
+            },
+            "resolved_value": {
+              "type": "null"
+            },
+            "confidence_assessment": {
+              "const": "UNVERIFIED"
+            },
+            "evidence_gap_statement": {
+              "type": "string",
+              "minLength": 1
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        },
+        {
+          "description": "CONFLICTING_EVIDENCE",
+          "required": [
+            "status",
+            "evidence_level",
+            "conflicting_references",
+            "resolved_value",
+            "confidence_assessment",
+            "evidence_gap_statement"
+          ],
+          "properties": {
+            "status": {
+              "const": "CONFLICTING_EVIDENCE"
+            },
+            "evidence_level": {
+              "type": "null"
+            },
+            "conflicting_references": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "$ref": "#/$defs/evidence_reference_object"
+              }
+            },
+            "evidence_reference": {
+              "type": "null"
+            },
+            "resolved_value": {
+              "type": "null"
+            },
+            "confidence_assessment": {
+              "const": "CONFLICTING"
+            },
+            "evidence_gap_statement": {
+              "type": "string",
+              "minLength": 1
+            },
+            "applicability_justification": false
+          }
+        }
+      ]
+    },
+    "sensor_type_evidence_entry": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "evidence_level": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "evidence_reference": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "conflicting_references": {
+          "type": "array"
+        },
+        "resolved_value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence_assessment": {
+          "type": "string"
+        },
+        "evidence_gap_statement": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "applicability_justification": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment"
+          ],
+          "properties": {
+            "status": {
+              "const": "DOCUMENTED_KNOWN"
+            },
+            "evidence_level": {
+              "type": "integer",
+              "enum": [
+                1,
+                2
+              ]
+            },
+            "evidence_reference": {
+              "$ref": "#/$defs/evidence_reference_object"
+            },
+            "resolved_value": {
+              "type": "string",
+              "enum": [
+                "PIEZOELECTRIC_IEPE",
+                "CAPACITIVE_MEMS",
+                "PIEZORESISTIVE",
+                "ELECTRODYNAMIC",
+                "OPTICAL_LASER_DOPPLER"
+              ]
+            },
+            "confidence_assessment": {
+              "type": "string",
+              "enum": [
+                "VERIFIED_PRIMARY",
+                "CONSISTENT_SECONDARY"
+              ]
+            },
+            "evidence_gap_statement": {
+              "type": "null"
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        },
+        {
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment",
+            "evidence_gap_statement"
+          ],
+          "properties": {
+            "status": {
+              "const": "UNKNOWN_UNSTATED"
+            },
+            "evidence_level": {
+              "type": "null"
+            },
+            "evidence_reference": {
+              "type": "null"
+            },
+            "resolved_value": {
+              "type": "null"
+            },
+            "confidence_assessment": {
+              "const": "UNVERIFIED"
+            },
+            "evidence_gap_statement": {
+              "type": "string",
+              "minLength": 1
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        }
+      ]
+    },
+    "measurement_axis_evidence_entry": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "evidence_level": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "evidence_reference": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "conflicting_references": {
+          "type": "array"
+        },
+        "resolved_value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence_assessment": {
+          "type": "string"
+        },
+        "evidence_gap_statement": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "applicability_justification": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment"
+          ],
+          "properties": {
+            "status": {
+              "const": "DOCUMENTED_KNOWN"
+            },
+            "evidence_level": {
+              "type": "integer",
+              "enum": [
+                1,
+                2
+              ]
+            },
+            "evidence_reference": {
+              "$ref": "#/$defs/evidence_reference_object"
+            },
+            "resolved_value": {
+              "type": "string",
+              "enum": [
+                "RADIAL_VERTICAL",
+                "RADIAL_HORIZONTAL",
+                "AXIAL",
+                "TRIAXIAL_X",
+                "TRIAXIAL_Y",
+                "TRIAXIAL_Z",
+                "UNSPECIFIED_SINGLE_AXIS"
+              ]
+            },
+            "confidence_assessment": {
+              "type": "string",
+              "enum": [
+                "VERIFIED_PRIMARY",
+                "CONSISTENT_SECONDARY"
+              ]
+            },
+            "evidence_gap_statement": {
+              "type": "null"
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        },
+        {
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment",
+            "evidence_gap_statement"
+          ],
+          "properties": {
+            "status": {
+              "const": "UNKNOWN_UNSTATED"
+            },
+            "evidence_level": {
+              "type": "null"
+            },
+            "evidence_reference": {
+              "type": "null"
+            },
+            "resolved_value": {
+              "type": "null"
+            },
+            "confidence_assessment": {
+              "const": "UNVERIFIED"
+            },
+            "evidence_gap_statement": {
+              "type": "string",
+              "minLength": 1
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        }
+      ]
+    },
+    "sensitivity_units_evidence_entry": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "evidence_level": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "evidence_reference": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "conflicting_references": {
+          "type": "array"
+        },
+        "resolved_value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence_assessment": {
+          "type": "string"
+        },
+        "evidence_gap_statement": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "applicability_justification": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment"
+          ],
+          "properties": {
+            "status": {
+              "const": "DOCUMENTED_KNOWN"
+            },
+            "evidence_level": {
+              "type": "integer",
+              "enum": [
+                1,
+                2
+              ]
+            },
+            "evidence_reference": {
+              "$ref": "#/$defs/evidence_reference_object"
+            },
+            "resolved_value": {
+              "type": "string",
+              "enum": [
+                "mV/g",
+                "V/g",
+                "mV/(m/s^2)",
+                "V/(m/s^2)",
+                "pC/g"
+              ]
+            },
+            "confidence_assessment": {
+              "type": "string",
+              "enum": [
+                "VERIFIED_PRIMARY",
+                "CONSISTENT_SECONDARY"
+              ]
+            },
+            "evidence_gap_statement": {
+              "type": "null"
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        },
+        {
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment",
+            "evidence_gap_statement"
+          ],
+          "properties": {
+            "status": {
+              "const": "UNKNOWN_UNSTATED"
+            },
+            "evidence_level": {
+              "type": "null"
+            },
+            "evidence_reference": {
+              "type": "null"
+            },
+            "resolved_value": {
+              "type": "null"
+            },
+            "confidence_assessment": {
+              "const": "UNVERIFIED"
+            },
+            "evidence_gap_statement": {
+              "type": "string",
+              "minLength": 1
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        }
+      ]
+    },
+    "mounting_method_evidence_entry": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "evidence_level": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "evidence_reference": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "conflicting_references": {
+          "type": "array"
+        },
+        "resolved_value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence_assessment": {
+          "type": "string"
+        },
+        "evidence_gap_statement": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "applicability_justification": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment"
+          ],
+          "properties": {
+            "status": {
+              "const": "DOCUMENTED_KNOWN"
+            },
+            "evidence_level": {
+              "type": "integer",
+              "enum": [
+                1,
+                2
+              ]
+            },
+            "evidence_reference": {
+              "$ref": "#/$defs/evidence_reference_object"
+            },
+            "resolved_value": {
+              "type": "string",
+              "enum": [
+                "STUD_DIRECT_THREADED",
+                "MAGNETIC_BASE",
+                "ADHESIVE_CYANOACRYLATE",
+                "ADHESIVE_EPOXY",
+                "HANDHELD_PROBE"
+              ]
+            },
+            "confidence_assessment": {
+              "type": "string",
+              "enum": [
+                "VERIFIED_PRIMARY",
+                "CONSISTENT_SECONDARY"
+              ]
+            },
+            "evidence_gap_statement": {
+              "type": "null"
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        },
+        {
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment",
+            "evidence_gap_statement"
+          ],
+          "properties": {
+            "status": {
+              "const": "UNKNOWN_UNSTATED"
+            },
+            "evidence_level": {
+              "type": "null"
+            },
+            "evidence_reference": {
+              "type": "null"
+            },
+            "resolved_value": {
+              "type": "null"
+            },
+            "confidence_assessment": {
+              "const": "UNVERIFIED"
+            },
+            "evidence_gap_statement": {
+              "type": "string",
+              "minLength": 1
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        }
+      ]
+    },
+    "bandwidth_evidence_entry": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "evidence_level": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "evidence_reference": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "conflicting_references": {
+          "type": "array"
+        },
+        "resolved_value": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "confidence_assessment": {
+          "type": "string"
+        },
+        "evidence_gap_statement": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "applicability_justification": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment"
+          ],
+          "properties": {
+            "status": {
+              "const": "DOCUMENTED_KNOWN"
+            },
+            "evidence_level": {
+              "type": "integer",
+              "enum": [
+                1,
+                2
+              ]
+            },
+            "evidence_reference": {
+              "$ref": "#/$defs/evidence_reference_object"
+            },
+            "resolved_value": {
+              "type": "object",
+              "required": [
+                "low_cutoff_hz",
+                "high_cutoff_hz"
+              ],
+              "properties": {
+                "low_cutoff_hz": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "high_cutoff_hz": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                }
+              }
+            },
+            "confidence_assessment": {
+              "type": "string",
+              "enum": [
+                "VERIFIED_PRIMARY",
+                "CONSISTENT_SECONDARY"
+              ]
+            },
+            "evidence_gap_statement": {
+              "type": "null"
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        },
+        {
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment",
+            "evidence_gap_statement"
+          ],
+          "properties": {
+            "status": {
+              "const": "UNKNOWN_UNSTATED"
+            },
+            "evidence_level": {
+              "type": "null"
+            },
+            "evidence_reference": {
+              "type": "null"
+            },
+            "resolved_value": {
+              "type": "null"
+            },
+            "confidence_assessment": {
+              "const": "UNVERIFIED"
+            },
+            "evidence_gap_statement": {
+              "type": "string",
+              "minLength": 1
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        }
+      ]
+    },
+    "sampling_clock_evidence_entry": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "evidence_level": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "evidence_reference": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "conflicting_references": {
+          "type": "array"
+        },
+        "resolved_value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence_assessment": {
+          "type": "string"
+        },
+        "evidence_gap_statement": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "applicability_justification": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment"
+          ],
+          "properties": {
+            "status": {
+              "const": "DOCUMENTED_KNOWN"
+            },
+            "evidence_level": {
+              "type": "integer",
+              "enum": [
+                1,
+                2
+              ]
+            },
+            "evidence_reference": {
+              "$ref": "#/$defs/evidence_reference_object"
+            },
+            "resolved_value": {
+              "type": "string",
+              "enum": [
+                "INTERNAL_HARDWARE_CRYSTAL",
+                "EXTERNAL_SYNCHRONIZED_CLOCK",
+                "PTP_IEEE_1588_GPS",
+                "SOFTWARE_TIMED_ESTIMATE"
+              ]
+            },
+            "confidence_assessment": {
+              "type": "string",
+              "enum": [
+                "VERIFIED_PRIMARY",
+                "CONSISTENT_SECONDARY"
+              ]
+            },
+            "evidence_gap_statement": {
+              "type": "null"
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        },
+        {
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment",
+            "evidence_gap_statement"
+          ],
+          "properties": {
+            "status": {
+              "const": "UNKNOWN_UNSTATED"
+            },
+            "evidence_level": {
+              "type": "null"
+            },
+            "evidence_reference": {
+              "type": "null"
+            },
+            "resolved_value": {
+              "type": "null"
+            },
+            "confidence_assessment": {
+              "const": "UNVERIFIED"
+            },
+            "evidence_gap_statement": {
+              "type": "string",
+              "minLength": 1
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        }
+      ]
+    },
+    "raw_stored_units_evidence_entry": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "evidence_level": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "evidence_reference": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "conflicting_references": {
+          "type": "array"
+        },
+        "resolved_value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence_assessment": {
+          "type": "string"
+        },
+        "evidence_gap_statement": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "applicability_justification": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment"
+          ],
+          "properties": {
+            "status": {
+              "const": "DOCUMENTED_KNOWN"
+            },
+            "evidence_level": {
+              "type": "integer",
+              "enum": [
+                1,
+                2
+              ]
+            },
+            "evidence_reference": {
+              "$ref": "#/$defs/evidence_reference_object"
+            },
+            "resolved_value": {
+              "type": "string",
+              "enum": [
+                "RAW_ADC_COUNTS",
+                "MILLIVOLTS",
+                "VOLTS",
+                "ACCELERATION_G",
+                "ACCELERATION_M_PER_S2",
+                "DIMENSIONLESS_NORMALIZED"
+              ]
+            },
+            "confidence_assessment": {
+              "type": "string",
+              "enum": [
+                "VERIFIED_PRIMARY",
+                "CONSISTENT_SECONDARY"
+              ]
+            },
+            "evidence_gap_statement": {
+              "type": "null"
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        },
+        {
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment",
+            "evidence_gap_statement"
+          ],
+          "properties": {
+            "status": {
+              "const": "UNKNOWN_UNSTATED"
+            },
+            "evidence_level": {
+              "type": "null"
+            },
+            "evidence_reference": {
+              "type": "null"
+            },
+            "resolved_value": {
+              "type": "null"
+            },
+            "confidence_assessment": {
+              "const": "UNVERIFIED"
+            },
+            "evidence_gap_statement": {
+              "type": "string",
+              "minLength": 1
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        }
+      ]
+    },
+    "fault_category_evidence_entry": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "evidence_level": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "evidence_reference": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "conflicting_references": {
+          "type": "array"
+        },
+        "resolved_value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence_assessment": {
+          "type": "string"
+        },
+        "evidence_gap_statement": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "applicability_justification": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment"
+          ],
+          "properties": {
+            "status": {
+              "const": "DOCUMENTED_KNOWN"
+            },
+            "evidence_level": {
+              "type": "integer",
+              "enum": [
+                1,
+                2
+              ]
+            },
+            "evidence_reference": {
+              "$ref": "#/$defs/evidence_reference_object"
+            },
+            "resolved_value": {
+              "type": "string",
+              "enum": [
+                "BASELINE_HEALTHY",
+                "INNER_RACE_FAULT",
+                "OUTER_RACE_FAULT",
+                "BALL_ELEMENT_FAULT",
+                "CAGE_DEFECT",
+                "SHAFT_MISALIGNMENT",
+                "ROTOR_UNBALANCE",
+                "STATOR_WINDING_FAULT"
+              ]
+            },
+            "confidence_assessment": {
+              "type": "string",
+              "enum": [
+                "VERIFIED_PRIMARY",
+                "CONSISTENT_SECONDARY"
+              ]
+            },
+            "evidence_gap_statement": {
+              "type": "null"
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        },
+        {
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment",
+            "evidence_gap_statement"
+          ],
+          "properties": {
+            "status": {
+              "const": "UNKNOWN_UNSTATED"
+            },
+            "evidence_level": {
+              "type": "null"
+            },
+            "evidence_reference": {
+              "type": "null"
+            },
+            "resolved_value": {
+              "type": "null"
+            },
+            "confidence_assessment": {
+              "const": "UNVERIFIED"
+            },
+            "evidence_gap_statement": {
+              "type": "string",
+              "minLength": 1
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        }
+      ]
+    },
+    "fault_provenance_evidence_entry": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "evidence_level": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "evidence_reference": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "conflicting_references": {
+          "type": "array"
+        },
+        "resolved_value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence_assessment": {
+          "type": "string"
+        },
+        "evidence_gap_statement": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "applicability_justification": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment"
+          ],
+          "properties": {
+            "status": {
+              "const": "DOCUMENTED_KNOWN"
+            },
+            "evidence_level": {
+              "type": "integer",
+              "enum": [
+                1,
+                2
+              ]
+            },
+            "evidence_reference": {
+              "$ref": "#/$defs/evidence_reference_object"
+            },
+            "resolved_value": {
+              "type": "string",
+              "enum": [
+                "SEEDED_ELECTRO_DISCHARGE_MACHINED",
+                "SEEDED_ACID_ETCHING",
+                "ACCELERATED_LIFETIME_FATIGUE_TEST",
+                "NATURAL_IN_SERVICE_FAILURE",
+                "SYNTHETIC_MATHEMATICAL_MODEL"
+              ]
+            },
+            "confidence_assessment": {
+              "type": "string",
+              "enum": [
+                "VERIFIED_PRIMARY",
+                "CONSISTENT_SECONDARY"
+              ]
+            },
+            "evidence_gap_statement": {
+              "type": "null"
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        },
+        {
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment",
+            "evidence_gap_statement"
+          ],
+          "properties": {
+            "status": {
+              "const": "UNKNOWN_UNSTATED"
+            },
+            "evidence_level": {
+              "type": "null"
+            },
+            "evidence_reference": {
+              "type": "null"
+            },
+            "resolved_value": {
+              "type": "null"
+            },
+            "confidence_assessment": {
+              "const": "UNVERIFIED"
+            },
+            "evidence_gap_statement": {
+              "type": "string",
+              "minLength": 1
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        }
+      ]
+    },
+    "legal_license_evidence_entry": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "evidence_level": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "evidence_reference": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "conflicting_references": {
+          "type": "array"
+        },
+        "resolved_value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence_assessment": {
+          "type": "string"
+        },
+        "evidence_gap_statement": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "applicability_justification": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment"
+          ],
+          "properties": {
+            "status": {
+              "const": "DOCUMENTED_KNOWN"
+            },
+            "evidence_level": {
+              "type": "integer",
+              "enum": [
+                1,
+                2
+              ]
+            },
+            "evidence_reference": {
+              "$ref": "#/$defs/evidence_reference_object"
+            },
+            "resolved_value": {
+              "type": "string",
+              "enum": [
+                "PUBLIC_DOMAIN_CC0",
+                "CREATIVE_COMMONS_ATTRIBUTION_CC_BY_4_0",
+                "CREATIVE_COMMONS_NON_COMMERCIAL_CC_BY_NC_4_0",
+                "ACADEMIC_RESEARCH_ONLY_CUSTOM",
+                "OPEN_DATABASE_LICENSE_ODBL",
+                "PROPRIETARY_ADI_INTERNAL"
+              ]
+            },
+            "confidence_assessment": {
+              "type": "string",
+              "enum": [
+                "VERIFIED_PRIMARY",
+                "CONSISTENT_SECONDARY"
+              ]
+            },
+            "evidence_gap_statement": {
+              "type": "null"
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        },
+        {
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment",
+            "evidence_gap_statement"
+          ],
+          "properties": {
+            "status": {
+              "const": "UNKNOWN_UNSTATED"
+            },
+            "evidence_level": {
+              "type": "null"
+            },
+            "evidence_reference": {
+              "type": "null"
+            },
+            "resolved_value": {
+              "type": "null"
+            },
+            "confidence_assessment": {
+              "const": "UNVERIFIED"
+            },
+            "evidence_gap_statement": {
+              "type": "string",
+              "minLength": 1
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        }
+      ]
+    },
+    "sensor_identity_def": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manufacturer",
+        "model",
+        "sensor_type",
+        "measurement_axis",
+        "sensitivity",
+        "sensitivity_units",
+        "measurement_range_peak_g",
+        "full_scale_limit_physical",
+        "resolution_bits",
+        "frequency_response_bandwidth_3db_hz",
+        "calibration_certificate",
+        "mounting_method",
+        "mounting_location_description"
+      ],
+      "properties": {
+        "manufacturer": {
+          "$ref": "#/$defs/string_evidence_entry"
+        },
+        "model": {
+          "$ref": "#/$defs/string_evidence_entry"
+        },
+        "sensor_type": {
+          "$ref": "#/$defs/sensor_type_evidence_entry"
+        },
+        "measurement_axis": {
+          "$ref": "#/$defs/measurement_axis_evidence_entry"
+        },
+        "sensitivity": {
+          "$ref": "#/$defs/positive_number_evidence_entry"
+        },
+        "sensitivity_units": {
+          "$ref": "#/$defs/sensitivity_units_evidence_entry"
+        },
+        "measurement_range_peak_g": {
+          "$ref": "#/$defs/positive_number_evidence_entry"
+        },
+        "full_scale_limit_physical": {
+          "$ref": "#/$defs/positive_number_evidence_entry"
+        },
+        "resolution_bits": {
+          "$ref": "#/$defs/positive_int_evidence_entry"
+        },
+        "frequency_response_bandwidth_3db_hz": {
+          "$ref": "#/$defs/bandwidth_evidence_entry"
+        },
+        "calibration_certificate": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "available",
+            "certificate_number",
+            "calibrated_date",
+            "traceability_authority"
+          ],
+          "properties": {
+            "available": {
+              "type": "boolean"
+            },
+            "certificate_number": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "calibrated_date": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date"
+            },
+            "traceability_authority": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "mounting_method": {
+          "$ref": "#/$defs/mounting_method_evidence_entry"
+        },
+        "mounting_location_description": {
+          "$ref": "#/$defs/string_evidence_entry"
+        }
+      }
+    },
+    "acquisition_signal_interpretation_def": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "native_sampling_frequency_hz",
+        "sampling_clock_provenance",
+        "raw_stored_units",
+        "calibrated_acceleration_unit",
+        "adc_bit_depth",
+        "adc_input_range_volts",
+        "adc_scaling_factor",
+        "analog_front_end_gain",
+        "duration_seconds",
+        "sample_count",
+        "channel_identity",
+        "analog_filtering_description",
+        "anti_aliasing_verified",
+        "saturation_detection_limit_stored_units",
+        "missing_data_sample_count",
+        "nonfinite_sample_count"
+      ],
+      "properties": {
+        "native_sampling_frequency_hz": {
+          "$ref": "#/$defs/positive_number_evidence_entry"
+        },
+        "sampling_clock_provenance": {
+          "$ref": "#/$defs/sampling_clock_evidence_entry"
+        },
+        "raw_stored_units": {
+          "$ref": "#/$defs/raw_stored_units_evidence_entry"
+        },
+        "calibrated_acceleration_unit": {
+          "$ref": "#/$defs/calibrated_acceleration_unit_evidence_entry"
+        },
+        "adc_bit_depth": {
+          "$ref": "#/$defs/positive_int_evidence_entry"
+        },
+        "adc_input_range_volts": {
+          "$ref": "#/$defs/positive_number_evidence_entry"
+        },
+        "adc_scaling_factor": {
+          "$ref": "#/$defs/positive_number_evidence_entry"
+        },
+        "analog_front_end_gain": {
+          "$ref": "#/$defs/positive_number_evidence_entry"
+        },
+        "duration_seconds": {
+          "$ref": "#/$defs/positive_number_evidence_entry"
+        },
+        "sample_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "channel_identity": {
+          "$ref": "#/$defs/string_evidence_entry"
+        },
+        "analog_filtering_description": {
+          "$ref": "#/$defs/string_evidence_entry"
+        },
+        "anti_aliasing_verified": {
+          "$ref": "#/$defs/boolean_evidence_entry"
+        },
+        "saturation_detection_limit_stored_units": {
+          "$ref": "#/$defs/positive_number_evidence_entry"
+        },
+        "missing_data_sample_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "nonfinite_sample_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "experiment_specimen_identity_def": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "physical_specimen_id",
+        "specimen_distinctness_proven",
+        "machine_asset_id",
+        "equipment_type",
+        "rotational_speed_rpm",
+        "nominal_load_hp",
+        "load_percentage",
+        "operating_regime_classification",
+        "measurement_session_id",
+        "repeated_recording_dependency_flag",
+        "related_experimental_recordings",
+        "fault_condition"
+      ],
+      "properties": {
+        "physical_specimen_id": {
+          "$ref": "#/$defs/string_evidence_entry"
+        },
+        "specimen_distinctness_proven": {
+          "$ref": "#/$defs/boolean_evidence_entry"
+        },
+        "machine_asset_id": {
+          "$ref": "#/$defs/string_evidence_entry"
+        },
+        "equipment_type": {
+          "$ref": "#/$defs/string_evidence_entry"
+        },
+        "rotational_speed_rpm": {
+          "$ref": "#/$defs/nonnegative_number_evidence_entry"
+        },
+        "nominal_load_hp": {
+          "$ref": "#/$defs/nonnegative_number_evidence_entry"
+        },
+        "load_percentage": {
+          "$ref": "#/$defs/nonnegative_number_evidence_entry"
+        },
+        "operating_regime_classification": {
+          "type": "string",
+          "enum": [
+            "STEADY_STATE_STATIC_LOAD",
+            "TRANSIENT_VARIABLE_SPEED",
+            "CYCLIC_VARIABLE_LOAD",
+            "UNSTATED"
+          ]
+        },
+        "measurement_session_id": {
+          "$ref": "#/$defs/string_evidence_entry"
+        },
+        "repeated_recording_dependency_flag": {
+          "$ref": "#/$defs/boolean_evidence_entry"
+        },
+        "related_experimental_recordings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "fault_condition": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "fault_category",
+            "fault_dimension_label",
+            "fault_provenance_method",
+            "ground_truth_label_authority"
+          ],
+          "properties": {
+            "fault_category": {
+              "$ref": "#/$defs/fault_category_evidence_entry"
+            },
+            "fault_dimension_label": {
+              "$ref": "#/$defs/string_evidence_entry"
+            },
+            "fault_provenance_method": {
+              "$ref": "#/$defs/fault_provenance_evidence_entry"
+            },
+            "ground_truth_label_authority": {
+              "$ref": "#/$defs/string_evidence_entry"
+            }
+          }
+        }
+      }
+    },
+    "dataset_legal_provenance_def": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dataset_name",
+        "publisher_entity",
+        "primary_documentation_uris",
+        "dataset_version",
+        "acquisition_date",
+        "source_raw_byte_sha256",
+        "legal_usage_license",
+        "affirmative_commercial_grant",
+        "affirmative_research_grant",
+        "redistribution_permitted",
+        "attribution_required",
+        "attribution_text",
+        "transformation_derivation_history"
+      ],
+      "properties": {
+        "dataset_name": {
+          "$ref": "#/$defs/string_evidence_entry"
+        },
+        "publisher_entity": {
+          "$ref": "#/$defs/string_evidence_entry"
+        },
+        "primary_documentation_uris": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "dataset_version": {
+          "$ref": "#/$defs/string_evidence_entry"
+        },
+        "acquisition_date": {
+          "$ref": "#/$defs/string_evidence_entry"
+        },
+        "source_raw_byte_sha256": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "legal_usage_license": {
+          "$ref": "#/$defs/legal_license_evidence_entry"
+        },
+        "affirmative_commercial_grant": {
+          "$ref": "#/$defs/boolean_evidence_entry"
+        },
+        "affirmative_research_grant": {
+          "$ref": "#/$defs/boolean_evidence_entry"
+        },
+        "redistribution_permitted": {
+          "$ref": "#/$defs/boolean_evidence_entry"
+        },
+        "attribution_required": {
+          "$ref": "#/$defs/boolean_evidence_entry"
+        },
+        "attribution_text": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "transformation_derivation_history": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "step_order",
+              "operator_name",
+              "software_tool",
+              "parameters",
+              "output_sha256"
+            ],
+            "properties": {
+              "step_order": {
+                "type": "integer"
+              },
+              "operator_name": {
+                "type": "string"
+              },
+              "software_tool": {
+                "type": "string"
+              },
+              "parameters": {
+                "type": "object"
+              },
+              "output_sha256": {
+                "type": "string",
+                "pattern": "^[a-fA-F0-9]{64}$"
+              }
+            }
+          }
+        }
+      }
+    },
+    "nonnegative_number_evidence_entry": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "evidence_level": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "evidence_reference": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "conflicting_references": {
+          "type": "array"
+        },
+        "resolved_value": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "confidence_assessment": {
+          "type": "string"
+        },
+        "evidence_gap_statement": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "applicability_justification": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "description": "DOCUMENTED_KNOWN",
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment"
+          ],
+          "properties": {
+            "status": {
+              "const": "DOCUMENTED_KNOWN"
+            },
+            "evidence_level": {
+              "type": "integer",
+              "enum": [
+                1,
+                2
+              ]
+            },
+            "evidence_reference": {
+              "$ref": "#/$defs/evidence_reference_object"
+            },
+            "resolved_value": {
+              "type": "number",
+              "minimum": 0
+            },
+            "confidence_assessment": {
+              "type": "string",
+              "enum": [
+                "VERIFIED_PRIMARY",
+                "CONSISTENT_SECONDARY"
+              ]
+            },
+            "evidence_gap_statement": {
+              "type": "null"
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        },
+        {
+          "description": "DERIVED_KNOWN",
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment"
+          ],
+          "properties": {
+            "status": {
+              "const": "DERIVED_KNOWN"
+            },
+            "evidence_level": {
+              "const": 3
+            },
+            "evidence_reference": {
+              "$ref": "#/$defs/derivation_reference_object"
+            },
+            "resolved_value": {
+              "type": "number",
+              "minimum": 0
+            },
+            "confidence_assessment": {
+              "const": "REPRODUCIBLE_DERIVATION"
+            },
+            "evidence_gap_statement": {
+              "type": "null"
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        },
+        {
+          "description": "UNKNOWN_UNSTATED",
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment",
+            "evidence_gap_statement"
+          ],
+          "properties": {
+            "status": {
+              "const": "UNKNOWN_UNSTATED"
+            },
+            "evidence_level": {
+              "type": "null"
+            },
+            "evidence_reference": {
+              "type": "null"
+            },
+            "resolved_value": {
+              "type": "null"
+            },
+            "confidence_assessment": {
+              "const": "UNVERIFIED"
+            },
+            "evidence_gap_statement": {
+              "type": "string",
+              "minLength": 1
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        },
+        {
+          "description": "CONFLICTING_EVIDENCE",
+          "required": [
+            "status",
+            "evidence_level",
+            "conflicting_references",
+            "resolved_value",
+            "confidence_assessment",
+            "evidence_gap_statement"
+          ],
+          "properties": {
+            "status": {
+              "const": "CONFLICTING_EVIDENCE"
+            },
+            "evidence_level": {
+              "type": "null"
+            },
+            "conflicting_references": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "$ref": "#/$defs/evidence_reference_object"
+              }
+            },
+            "evidence_reference": {
+              "type": "null"
+            },
+            "resolved_value": {
+              "type": "null"
+            },
+            "confidence_assessment": {
+              "const": "CONFLICTING"
+            },
+            "evidence_gap_statement": {
+              "type": "string",
+              "minLength": 1
+            },
+            "applicability_justification": false
+          }
+        },
+        {
+          "description": "NOT_APPLICABLE",
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment",
+            "applicability_justification"
+          ],
+          "properties": {
+            "status": {
+              "const": "NOT_APPLICABLE"
+            },
+            "evidence_level": {
+              "type": "null"
+            },
+            "evidence_reference": {
+              "type": "null"
+            },
+            "resolved_value": {
+              "type": "null"
+            },
+            "confidence_assessment": {
+              "const": "NOT_APPLICABLE"
+            },
+            "applicability_justification": {
+              "type": "string",
+              "minLength": 1
+            },
+            "conflicting_references": false,
+            "evidence_gap_statement": false
+          }
+        }
+      ]
+    },
+    "boolean_evidence_entry": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "evidence_level": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "evidence_reference": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "conflicting_references": {
+          "type": "array"
+        },
+        "resolved_value": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "confidence_assessment": {
+          "type": "string"
+        },
+        "evidence_gap_statement": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "applicability_justification": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "description": "DOCUMENTED_KNOWN",
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment"
+          ],
+          "properties": {
+            "status": {
+              "const": "DOCUMENTED_KNOWN"
+            },
+            "evidence_level": {
+              "type": "integer",
+              "enum": [
+                1,
+                2
+              ]
+            },
+            "evidence_reference": {
+              "$ref": "#/$defs/evidence_reference_object"
+            },
+            "resolved_value": {
+              "type": "boolean"
+            },
+            "confidence_assessment": {
+              "type": "string",
+              "enum": [
+                "VERIFIED_PRIMARY",
+                "CONSISTENT_SECONDARY"
+              ]
+            },
+            "evidence_gap_statement": {
+              "type": "null"
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        },
+        {
+          "description": "DERIVED_KNOWN",
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment"
+          ],
+          "properties": {
+            "status": {
+              "const": "DERIVED_KNOWN"
+            },
+            "evidence_level": {
+              "const": 3
+            },
+            "evidence_reference": {
+              "$ref": "#/$defs/derivation_reference_object"
+            },
+            "resolved_value": {
+              "type": "boolean"
+            },
+            "confidence_assessment": {
+              "const": "REPRODUCIBLE_DERIVATION"
+            },
+            "evidence_gap_statement": {
+              "type": "null"
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        },
+        {
+          "description": "UNKNOWN_UNSTATED",
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment",
+            "evidence_gap_statement"
+          ],
+          "properties": {
+            "status": {
+              "const": "UNKNOWN_UNSTATED"
+            },
+            "evidence_level": {
+              "type": "null"
+            },
+            "evidence_reference": {
+              "type": "null"
+            },
+            "resolved_value": {
+              "type": "null"
+            },
+            "confidence_assessment": {
+              "const": "UNVERIFIED"
+            },
+            "evidence_gap_statement": {
+              "type": "string",
+              "minLength": 1
+            },
+            "conflicting_references": false,
+            "applicability_justification": false
+          }
+        },
+        {
+          "description": "CONFLICTING_EVIDENCE",
+          "required": [
+            "status",
+            "evidence_level",
+            "conflicting_references",
+            "resolved_value",
+            "confidence_assessment",
+            "evidence_gap_statement"
+          ],
+          "properties": {
+            "status": {
+              "const": "CONFLICTING_EVIDENCE"
+            },
+            "evidence_level": {
+              "type": "null"
+            },
+            "conflicting_references": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "$ref": "#/$defs/evidence_reference_object"
+              }
+            },
+            "evidence_reference": {
+              "type": "null"
+            },
+            "resolved_value": {
+              "type": "null"
+            },
+            "confidence_assessment": {
+              "const": "CONFLICTING"
+            },
+            "evidence_gap_statement": {
+              "type": "string",
+              "minLength": 1
+            },
+            "applicability_justification": false
+          }
+        },
+        {
+          "description": "NOT_APPLICABLE",
+          "required": [
+            "status",
+            "evidence_level",
+            "evidence_reference",
+            "resolved_value",
+            "confidence_assessment",
+            "applicability_justification"
+          ],
+          "properties": {
+            "status": {
+              "const": "NOT_APPLICABLE"
+            },
+            "evidence_level": {
+              "type": "null"
+            },
+            "evidence_reference": {
+              "type": "null"
+            },
+            "resolved_value": {
+              "type": "null"
+            },
+            "confidence_assessment": {
+              "const": "NOT_APPLICABLE"
+            },
+            "applicability_justification": {
+              "type": "string",
+              "minLength": 1
+            },
+            "conflicting_references": false,
+            "evidence_gap_statement": false
+          }
+        }
+      ]
+    }
+  }
+}
